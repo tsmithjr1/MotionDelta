@@ -9,6 +9,7 @@ import org.bytedeco.opencv.opencv_core.Mat;
 import org.bytedeco.opencv.global.opencv_core;
 import org.bytedeco.opencv.global.opencv_imgproc;
 
+// Handles camera initialization, frame grabbing, conversion to Mat, and running the capture loop
 public class CameraIngestion {
 	private OpenCVFrameGrabber cameraHandle;
 	private int cameraIndex;
@@ -44,17 +45,20 @@ public class CameraIngestion {
 		this.runningState = runningState;
 	}
 	
+	// Starts the camera and sets the running state
 	public void start() throws Exception {
 		cameraHandle.start();
 		runningState = true;
 			
 	}
 	
+	// Stops the camera and resets the running state
 	public void stop() throws Exception {
 		cameraHandle.stop();
 		runningState = false;
 	}
 	
+	// Grabs a single frame and validates that it contains image data
 	public Frame grabFrame() throws Exception {
 		Frame singleFrame = cameraHandle.grabFrame();
 		
@@ -69,6 +73,7 @@ public class CameraIngestion {
 		return singleFrame;
 	}
 	
+	// Converts a Frame to an OpenCv Mat and validates the result
 	public Mat convertToMat(Frame frame) throws Exception {
 		OpenCVFrameConverter.ToMat frameConverter = new OpenCVFrameConverter.ToMat();
 		Mat mat = frameConverter.convertToMat(frame);
@@ -86,7 +91,58 @@ public class CameraIngestion {
 		return mat;
 	}
 	
-	public 
+	// Continuously captures frames, converts them, and performs motion detection
+	public void runCaptureLoop() {
+		MotionDetector detector = new MotionDetector();
+		
+		Mat previousImage = null;
+		
+		// Main capture loop
+		while (isRunningState()) {
+			
+			// Grabbing a frame from the camera
+			Frame currentFrame;
+			try {
+				currentFrame = grabFrame();
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				continue;
+			}
+			
+			// Converting frame to OpenCV Mat
+			Mat currentImage;
+			try {
+				currentImage = convertToMat(currentFrame);	
+			} catch(Exception e) {
+				System.out.println(e.getMessage());
+				continue;
+			}
+			
+			// Initializing the first frame
+			if (previousImage == null) {
+				previousImage = currentImage;
+				continue;
+				
+			} else {
+				
+				// Detecting motion between frames
+				boolean motionDetected = detector.detectMotion(previousImage, currentImage);
+				
+				if (motionDetected) {
+					System.out.println("Motion detected");
+				} else {
+					System.out.println("No motion.");
+				}
+				
+				// Updating previousImage for the next iteration
+				previousImage = currentImage;
+			}
+		
+			
+		}
+		
+		
+	}
 	
 	
 }
