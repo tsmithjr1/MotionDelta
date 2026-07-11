@@ -1,2 +1,2 @@
 # MotionDelta
-Real-time camera ingestion pipeline using JavaCV &amp; OpenCV
+MotionDelta - Real-Time Motion Detection Using Laptop Camera (JavaCV + OpenCV)
