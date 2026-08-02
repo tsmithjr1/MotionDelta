@@ -93,8 +93,8 @@ public class CameraIngestion {
 	
 	// Continuously captures frames, converts them, and performs motion detection
 	public void runCaptureLoop() {
-		MotionDetector detector = new MotionDetector();
-		
+		MotionDetector detector = new MotionDetector(5000, 25, 21, 3);
+			
 		Mat previousImage = null;
 		
 		// Main capture loop
